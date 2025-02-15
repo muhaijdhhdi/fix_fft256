@@ -1,5 +1,7 @@
 `include "fix_butterfly.v"
 `define ReadFFile
+`define Debug
+
 module fix_fft#(
     parameter WIDTHa = 32,//X
     parameter WIDTHb = 32,//SIN,COS
@@ -11,13 +13,16 @@ module fix_fft#(
     input clk,
     input rstn,
     input vld_in,
-    input [WIDTHa-1:0] x_r,x_i,y_r,y_i,
-    input vld_out  
+    input [WIDTHa-1:0] x_r,x_i,
+    output [WIDTHa-1:0] y_r,y_i,
+    output vld_out  
 );
+parameter l=8;
+parameter N=256;
+
 reg [l-1:0] cnt_temp,cnt_output;
 
-parameter l=8;
-parameter N=1<<l;
+
 
 parameter IDLE=15;
 parameter STAGE0=0;
@@ -32,6 +37,26 @@ parameter FinalSTAGE=8;
 parameter INPUT=9;
 parameter OUTPUT=10;
 
+parameter      fileID_Stage0_r ="C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage0_r.txt",
+              fileID_Stage0_i = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage0_i.txt",
+              fileID_Stage1_r = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage1_r.txt",
+              fileID_Stage1_i = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage1_i.txt",
+              fileID_Stage2_r = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage2_r.txt",
+              fileID_Stage2_i = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage2_i.txt",
+              fileID_Stage3_r = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage3_r.txt",
+              fileID_Stage3_i = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage3_i.txt",
+              fileID_Stage4_r = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage4_r.txt",
+              fileID_Stage4_i = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage4_i.txt",
+              fileID_Stage5_r = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage5_r.txt",
+              fileID_Stage5_i = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage5_i.txt",
+              fileID_Stage6_r = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage6_r.txt",
+              fileID_Stage6_i = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage6_i.txt",
+              fileID_Stage7_r = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage7_r.txt",
+              fileID_Stage7_i = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage7_i.txt",
+              fileID_Stage8_r = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage8_r.txt",
+              fileID_Stage8_i = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\stage8_i.txt",
+              fileID_Output_r = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\Output_r.txt",
+              fileID_Output_i = "C:\\Users\\32172\\Desktop\\fft_fix\\scr\\valid_fft\\debug\\Output_i.txt";
 reg [3:0] state=IDLE;
 reg vld_in_diff;
 
@@ -45,7 +70,7 @@ always @(posedge clk or negedge rstn) begin//cnt_temp为输入缓存计数
         cnt_temp<=0;
     else if(vld_in_diff&&cnt_temp==0)
         cnt_temp<=cnt_temp+1;
-    else if(cnt_temp==N)
+    else if(cnt_temp==N-1)
         cnt_temp<=0;
     else if(cnt_temp>0)
         cnt_temp<=cnt_temp+1;     
@@ -57,7 +82,7 @@ always@(posedge clk or negedge rstn)//cnt_output为输出缓存计数
             cnt_output<=0;
         else if(state==OUTPUT&&cnt_output==0)
                 cnt_output<=cnt_output+1;
-        else if(cnt_output==N)
+        else if(cnt_output==N-1)
                 cnt_output<=0;
          else if(cnt_output>0)
                 cnt_output<=cnt_output+1;
@@ -114,7 +139,7 @@ always @(posedge clk) begin
                         x_r_store_o[cnt_temp]<=x_r;
                         x_i_store_o[cnt_temp]<=x_i;
                     end
-                if(cnt_temp==N)
+                if(cnt_temp==N-1)
                     begin
                         state<=STAGE0;
                     end
@@ -153,7 +178,7 @@ always @(posedge clk) begin
         STAGE2:
             begin
                 for (i=0;i<(N>>2);i=i+1)//64
-                    for(j=0;j<(1>1);j=j+1)
+                    for(j=0;j<(1<<1);j=j+1)
                        begin
                             x1_i_in[2*i+j]<=x_i_store_o[4*i+j];
                             x1_r_in[2*i+j]<=x_r_store_o[4*i+j];
@@ -166,7 +191,7 @@ always @(posedge clk) begin
                     begin
                       state<=STAGE3;
                       for (i=0;i<(N>>2);i=i+1)//64
-                        for(j=0;j<(1>1);j=j+1)
+                        for(j=0;j<(1<<1);j=j+1)
                             begin
                                 x_r_store_e[i*4+j]<=x1_r_out[2*i+j];
                                 x_i_store_e[i*4+j]<=x1_i_out[2*i+j];
@@ -184,14 +209,14 @@ always @(posedge clk) begin
                             x1_r_in[4*i+j]<=x_r_store_e[8*i+j];
                             x2_i_in[4*i+j]<=x_i_store_e[8*i+j+4];
                             x2_r_in[4*i+j]<=x_r_store_e[8*i+j+4];
-                            factory_cos[4*i+j]<=cosValue[(N<<3)*j];
-                            factory_sin[4*i+j]<=sinValue[(N<<3)*j];  
+                            factory_cos[4*i+j]<=cosValue[(N>>3)*j];
+                            factory_sin[4*i+j]<=sinValue[(N>>3)*j];  
                         end
                 if(vld_out_butterfly==1'b1)
                     begin
                         state<=STAGE4;
                         for(i=0;i<(N>>3);i=i+1)
-                            for(j=0;j<(1<<3);j=j+1)
+                            for(j=0;j<(1<<2);j=j+1)
                                 begin
                                     x_r_store_o[i*8+j]<=x1_r_out[4*i+j];
                                     x_i_store_o[i*8+j]<=x1_i_out[4*i+j];
@@ -339,7 +364,7 @@ always @(posedge clk) begin
                 end
         OUTPUT:
             begin
-                    if(cnt_output==N)
+                    if(cnt_output==N-1)
                         state<=IDLE;    
                 end
     endcase
@@ -364,7 +389,7 @@ always@(posedge clk or negedge rstn)
                                 en_butterfly<=0;
                                 cnt_stage<=2;
                             end
-                     else if(cnt_stage==2&&vld_out_butterfly==128'b11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111) begin 
+                     else if(cnt_stage==2&&vld_out_butterfly==1'b1) begin 
                                 cnt_stage<=0; 
               end
              end
@@ -403,4 +428,121 @@ assign y_r=y_r_reg;
 assign y_i=y_i_reg;
 assign vld_out=vld_out_reg;
 
+`ifdef Debug
+integer file_i,file_r;
+
+ always@(*)
+  begin
+        if (state==STAGE0) begin
+            file_r = $fopen(fileID_Stage0_r, "w");
+            file_i = $fopen(fileID_Stage0_i, "w");
+            for (i = 0; i < 256; i = i + 1) begin
+                $fwrite(file_r, "%b\n", x_r_store_o[i]);
+                $fwrite(file_i, "%b\n", x_i_store_o[i]);
+            end
+            $fclose(file_r);
+            $fclose(file_i);
+        end
+        if (state==STAGE1) begin
+            file_r = $fopen(fileID_Stage1_r, "w");
+            file_i = $fopen(fileID_Stage1_i, "w");
+            for (i = 0; i < 256; i = i + 1) begin
+                $fwrite(file_r, "%b\n", x_r_store_e[i]);
+                $fwrite(file_i, "%b\n", x_i_store_e[i]);
+            end
+            $fclose(file_r);
+            $fclose(file_i);
+        end
+        else if (state==STAGE2) begin
+            file_r = $fopen(fileID_Stage2_r, "w");
+            file_i = $fopen(fileID_Stage2_i, "w");
+            for (i = 0; i < 256; i = i + 1) begin
+                $fwrite(file_r, "%b\n", x_r_store_o[i]);
+                $fwrite(file_i, "%b\n", x_i_store_o[i]);
+            end
+            $fclose(file_r);
+            $fclose(file_i);
+        end
+        else if (state==STAGE3) begin
+            file_r = $fopen(fileID_Stage3_r, "w");
+            file_i = $fopen(fileID_Stage3_i, "w");
+            for (i = 0; i < 256; i = i + 1) begin
+                $fwrite(file_r, "%b\n", x_r_store_e[i]);
+                $fwrite(file_i, "%b\n", x_i_store_e[i]);
+            end
+            $fclose(file_r);
+            $fclose(file_i);
+        end
+        else if (state==STAGE4) begin
+            file_r = $fopen(fileID_Stage4_r, "w");
+            file_i = $fopen(fileID_Stage4_i, "w");
+            for (i = 0; i < 256; i = i + 1) begin
+                $fwrite(file_r, "%b\n", x_r_store_o[i]);
+                $fwrite(file_i, "%b\n", x_i_store_o[i]);
+            end
+            $fclose(file_r);
+            $fclose(file_i);
+        end
+        else if (state==STAGE5) begin
+            file_r = $fopen(fileID_Stage5_r, "w");
+            file_i = $fopen(fileID_Stage5_i, "w");
+            for (i = 0; i < 256; i = i + 1) begin
+                $fwrite(file_r, "%b\n", x_r_store_e[i]);
+                $fwrite(file_i, "%b\n", x_i_store_e[i]);
+            end        
+            $fclose(file_r);
+            $fclose(file_i);
+        end
+        else if (state==STAGE6) begin
+            file_r = $fopen(fileID_Stage6_r, "w");
+            file_i = $fopen(fileID_Stage6_i, "w");
+           
+            for (i = 0; i < 256; i = i + 1) begin
+                $fwrite(file_r, "%b\n", x_r_store_o[i]);
+                $fwrite(file_i, "%b\n", x_i_store_o[i]);
+            end
+            
+            $fclose(file_r);
+            $fclose(file_i);
+        end
+        else if (state==STAGE7) begin
+       
+            file_r = $fopen(fileID_Stage7_r, "w");
+            file_i = $fopen(fileID_Stage7_i, "w");
+       
+            for (i = 0; i < 256; i = i + 1) begin
+                $fwrite(file_r, "%b\n", x_r_store_e[i]);
+                $fwrite(file_i, "%b\n", x_i_store_e[i]);
+            end
+         
+            $fclose(file_r);
+            $fclose(file_i);
+        end
+        else if (state==FinalSTAGE) begin
+            file_r = $fopen(fileID_Stage8_r, "w");
+            file_i = $fopen(fileID_Stage8_i, "w");
+           
+            for (i = 0; i < 256; i = i + 1) begin
+                $fwrite(file_r, "%b\n", x_r_store_o[i]);
+                $fwrite(file_i, "%b\n", x_i_store_o[i]);
+            end
+           
+            $fclose(file_r);
+            $fclose(file_i);
+        end
+        else if(state==OUTPUT) 
+        begin
+            file_r = $fopen(fileID_Output_r, "w");
+            file_i = $fopen(fileID_Output_i, "w");
+            
+            for (i = 0; i < 256; i = i + 1) begin
+                $fwrite(file_r, "%b\n", x_r_store_e[i]);
+                $fwrite(file_i, "%b\n", x_i_store_e[i]);
+            end
+          
+            $fclose(file_r);
+            $fclose(file_i);
+        end
+    end
+  `endif
 endmodule
