@@ -1,0 +1,1 @@
+valid valid_adder valid_butterfly valid_fft 分别为定点乘法，定点加法，定点蝶形运算以及定点fft(N=256)的验证的py文件以及数据文件.txt，文件夹外的为乘法器，加法器，以及蝶形运算器，fft的源文件以及波形文件

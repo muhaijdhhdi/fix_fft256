@@ -5,17 +5,17 @@ module fix_fft_tb();
 parameter N=256;
 parameter T=10;
 
-parameter WIDTHa=16;
-parameter WIDTHb=16;
+parameter WIDTHa=32;
+parameter WIDTHb=32;
 parameter WIDTHr=WIDTHa;
-parameter WIDTH_F=9;
+parameter WIDTH_F=16;
 parameter WIDTH_I=WIDTHa-WIDTH_F;
 reg clk,rstn,vld_in;
 reg [WIDTHa-1:0] x_r,x_i;
 wire [WIDTHa-1:0] y_r,y_i;
 wire vld_out;
 
-
+reg dir=1;
 
 always #(T/2) clk=~clk;
 
@@ -88,7 +88,7 @@ initial begin
 end
 
 fix_fft #(.WIDTHa(WIDTHa),.WIDTHb(WIDTHb),.WIDTHr(WIDTHr),.WIDTH_F(WIDTH_F),.WIDTH_I(WIDTH_I)) 
-fft_u_1 (.clk(clk),.rstn(rstn),.x_r(x_r),.x_i(x_i),.y_r(y_r),.y_i(y_i),.vld_in(vld_in),.vld_out(vld_out));
+fft_u_1 (.clk(clk),.rstn(rstn),.dir(dir),.x_r(x_r),.x_i(x_i),.y_r(y_r),.y_i(y_i),.vld_in(vld_in),.vld_out(vld_out));
 
 initial begin
    $dumpfile("fix_fft_tb.vcd"); //生成的vcd文件名称

@@ -13,6 +13,7 @@ module fix_fft#(
     input clk,
     input rstn,
     input vld_in,
+    input dir,//1 fft 0 ifft
     input [WIDTHa-1:0] x_r,x_i,
     output [WIDTHa-1:0] y_r,y_i,
     output vld_out  
@@ -416,8 +417,16 @@ always@(posedge clk or negedge rstn)
         end
      else if(state==OUTPUT)
         begin
-            y_r_reg<=x_r_store_e[cnt_output];
-            y_i_reg<=x_i_store_e[cnt_output];
+            if(dir==1)
+                begin 
+                    y_r_reg<=x_r_store_e[cnt_output];
+                    y_i_reg<=x_i_store_e[cnt_output];
+                end 
+            else
+                begin
+                    y_r_reg<=x_r_store_e[cnt_output]>>>8;
+                    y_i_reg<=x_i_store_e[cnt_output]>>>8;
+                end
             vld_out_reg<=1;
          end
       else begin

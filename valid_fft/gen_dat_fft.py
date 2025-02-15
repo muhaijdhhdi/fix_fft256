@@ -45,12 +45,13 @@ if __name__=="__main__":
     random.seed(1000)
     factor = 10000  # 设置精度因子
     N=256
-    int1=9;int2=2;frac1=7;frac2=14
-
+    int1=16;int2=2;frac1=16;frac2=30
+    dir=1 # 1表示fft,-1表示ifft
+    
     x_r=[random.randint(-1 * factor, 1 * factor) / factor for _ in range(N)]
     x_i=[random.randint(-1 * factor, 1 * factor) / factor for _ in range(N)]
-    sinx=[math.sin(-2*math.pi*i/N) for i in range(N>>1)]
-    cosx=[math.cos(-2*math.pi*i/N) for i in range(N>>1)]
+    sinx=[math.sin(-2*dir*math.pi*i/N) for i in range(N>>1)]
+    cosx=[math.cos(-2*dir*math.pi*i/N) for i in range(N>>1)]
     
     #转换为定点数bin形式
     
