@@ -8,14 +8,14 @@ parameter T=10;
 parameter WIDTHa=32;
 parameter WIDTHb=32;
 parameter WIDTHr=WIDTHa;
-parameter WIDTH_F=16;
+parameter WIDTH_F=21;
 parameter WIDTH_I=WIDTHa-WIDTH_F;
 reg clk,rstn,vld_in;
 reg [WIDTHa-1:0] x_r,x_i;
 wire [WIDTHa-1:0] y_r,y_i;
 wire vld_out;
 
-reg dir=1;
+reg dir=0;//reg =0 ifft 
 
 always #(T/2) clk=~clk;
 

@@ -45,8 +45,8 @@ if __name__=="__main__":
     random.seed(1000)
     factor = 10000  # 设置精度因子
     N=256
-    int1=16;int2=2;frac1=16;frac2=30
-    dir=1 # 1表示fft,-1表示ifft
+    int1=11;int2=2;frac1=21;frac2=30
+    dir=-1 # 1表示fft,-1表示ifft
     
     x_r=[random.randint(-1 * factor, 1 * factor) / factor for _ in range(N)]
     x_i=[random.randint(-1 * factor, 1 * factor) / factor for _ in range(N)]

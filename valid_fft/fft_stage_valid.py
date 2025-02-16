@@ -1,6 +1,6 @@
 import struct
 import math
-
+import numpy as np
 def reversed_num():
     binary_to_decimal_0_255 = []
 
@@ -10,7 +10,7 @@ def reversed_num():
         binary_to_decimal_0_255.append(decimal_num)
 
     return binary_to_decimal_0_255
-def myfft_dit(x_r,x_i,dir):#256点的dit fft运算
+def myfft_dit(x_r,x_i,dir):#256点的dit fft运算,dir=1时fft,dir=-1时ifft,但是返回的结果的level8还没有/256
    N=256
    index=reversed_num()
    x_r_level0=[None]*N;x_r_level1=[None]*N;x_r_level2=[None]*N;x_r_level3=[None]*N;x_r_level4=[None]*N;x_r_level5=[None]*N;x_r_level6=[None]*N;x_r_level7=[None]*N;x_r_level8=[None]*N
@@ -96,14 +96,9 @@ def myfft_dit(x_r,x_i,dir):#256点的dit fft运算
                 else:
                     x_r_level8 [j]=x_r_level7 [j-128]-(math.cos(-2*math.pi*dir/N*(j-128))*x_r_level7 [j]-math.sin(-2*math.pi*dir/N*(j-128))*x_i_level7 [j])
                     x_i_level8 [j]=x_i_level7 [j-128]-(math.sin(-2*math.pi*dir/N*(j-128))*x_r_level7 [j]+math.cos(-2*math.pi*dir/N*(j-128))*x_i_level7 [j])
-   x_r_level8_ifft=[]
-   x_i_level8_ifft=[]
-   if dir==-1:
-        for i in range(256):
-            x_r_level8_ifft.append(x_r_level8[i]/256)
-            x_i_level8_ifft.append(x_i_level8[i]/256)
-        return [x_r,x_i,x_r_level0, x_i_level0, x_r_level1, x_i_level1, x_r_level2, x_i_level2, x_r_level3, x_i_level3, x_r_level4, x_i_level4, x_r_level5, x_i_level5, x_r_level6, x_i_level6, x_r_level7, x_i_level7, x_r_level8_ifft, x_i_level8_ifft]
    return [x_r,x_i,x_r_level0, x_i_level0, x_r_level1, x_i_level1, x_r_level2, x_i_level2, x_r_level3, x_i_level3, x_r_level4, x_i_level4, x_r_level5, x_i_level5, x_r_level6, x_i_level6, x_r_level7, x_i_level7, x_r_level8, x_i_level8]
+
+
 
 def to_i_f_binary(value,inter,frac):
         fixed_point_value = int(value * (2**frac))
@@ -128,9 +123,9 @@ import random
 if __name__=="__main__":
     random.seed(1000)
     factor = 10000  # 设置精度因子
-    inter=16
-    all_dig=32
-    dir=1
+    inter=9
+    all_dig=16
+    dir=-1
     N=256
 
 
@@ -178,7 +173,7 @@ if __name__=="__main__":
     for num_file in range(20):
         for num_data in range(256):
             data_vivado_double[num_file][num_data]=bin2dec(data_vivado_s[num_file][num_data],inter)
-    
+
     delta=[]
     for file in range(20):
         delta_ele=0

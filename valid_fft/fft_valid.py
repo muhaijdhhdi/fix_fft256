@@ -21,9 +21,9 @@ import numpy as np
 if __name__=="__main__":
     random.seed(1000)
     factor = 10000  # 设置精度因子
-    inter=16
-    all_dig=32
-    dir=1 # 1 fft -1 ifft 
+    inter=11
+    #all_dig=16
+    dir=-1 # 1 fft -1 ifft 
     N=256
 
     x_r=[random.randint(-1 * factor, 1 * factor) / factor for _ in range(N)]
@@ -64,7 +64,7 @@ if __name__=="__main__":
     for i in range(2):
         delta_ele=[]
         for j in range(N):
-              delta_ele.append(real_double[i][j]-model_double[i][j])
+              delta_ele.append((real_double[i][j]-model_double[i][j])/real_double[i][j])
         delta.append(delta_ele)
     error_sqr=[]
     for i in range(2):

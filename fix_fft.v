@@ -89,10 +89,10 @@ always@(posedge clk or negedge rstn)//cnt_output为输出缓存计数
                 cnt_output<=cnt_output+1;
    end 
 
-reg [WIDTHa-1:0] x_r_store_e[0:N-1];//存储偶数次序级数的fft蝶形运算中间值
-reg[WIDTHa-1:0]x_i_store_e[0:N-1];
-reg [WIDTHa-1:0]x_r_store_o[0:N-1];
-reg[WIDTHa-1:0]x_i_store_o[0:N-1];//存储奇数次序的fft蝶形运算中间值
+reg signed [WIDTHa-1:0] x_r_store_e[0:N-1];//存储偶数次序级数的fft蝶形运算中间值
+reg signed [WIDTHa-1:0]x_i_store_e[0:N-1];
+reg signed [WIDTHa-1:0]x_r_store_o[0:N-1];
+reg signed [WIDTHa-1:0]x_i_store_o[0:N-1];//存储奇数次序的fft蝶形运算中间值
 
 
 reg [WIDTHb-1:0]cosValue[0:(N>>1)-1];//存取sin,cos值
